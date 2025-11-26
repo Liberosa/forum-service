@@ -8,9 +8,7 @@ const app = express();
 
 app.use(express.json());
 app.use('/forum', postRoutes);
-app.use((error, req, res, next) =>
-    errorHandler(error, req, res, next));
-
+app.use(errorHandler);
 
 
 const connectDB = async () => {

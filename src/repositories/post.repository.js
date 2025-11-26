@@ -1,8 +1,16 @@
-import postModel from "../models/post.model.js";
+import Post from "../models/post.model.js";
 
-export function createPost(author,post) {
-   return postModel.create(author,post)
+class PostRepository {
+    async createPost(postData) {
+        const post = new Post(postData);
+        return post.save();
+    }
+    async findPostById(id) {
+        return Post.findById(id)
+    }
+    async deletePost(id){
+        return Post.findByIdAndDelete(id);
+    }
 }
-export function getPostById(postId){
-    return postModel.findById(postId)
-}
+
+export default new PostRepository();

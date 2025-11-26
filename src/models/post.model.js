@@ -1,14 +1,16 @@
-import mongoose from "mongoose";
+import {model, Schema, Types} from "mongoose";
+import commentSchema from "./comment.model.js";
 
-const postSchema = new mongoose.Schema(
+const postSchema = new Schema(
     {
+        _id: { type: String, default: () => new Types.ObjectId().toHexString()},
         title: {type: String, required: true, trim: true},
         content: {type: String, required: true, trim: true},
         author: {type: String, required: true, trim: true},
         dateCreated: {type: Date, default: Date.now},
         tags: {type: [String], default: [], trim: true},
         likes: {type: Number, default: 0, min: 0},
-        comments: {type: [String], default: [], trim: true}//пока так,но дальше будет ссылка на схему для комментариев,как я понимаю.
+        comments: {type: [commentSchema], default: [], trim: true}
     }, {
         versionKey: false,
         toJSON: {
@@ -19,5 +21,4 @@ const postSchema = new mongoose.Schema(
         }
     });
 
-const post = mongoose.model('Post', postSchema, 'posts');
-export default post;
+export default model('Post', postSchema, 'posts');
