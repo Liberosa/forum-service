@@ -17,6 +17,7 @@ const postSchema = new Schema(
             transform: (doc, ret) => {
                 ret.id = ret._id;
                 delete ret._id;
+                ret.dateCreated = ret.dateCreated.toISOString().slice(0, 19);
             }
         }
     });

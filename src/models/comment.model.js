@@ -21,7 +21,12 @@ const commentSchema = new Schema(
             min: 0
         }
     }, {
-        _id: false
+        _id: false,
+        toJSON: {
+            transform: (doc, ret) => {
+                ret.dateCreated = ret.dateCreated.toISOString().slice(0, 19);
+            }
+        }
     });
 
 export default commentSchema;
