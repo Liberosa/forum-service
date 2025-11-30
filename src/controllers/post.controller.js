@@ -59,11 +59,17 @@ class PostController {
         }
     }
     async getPostsByTags(req, res, next) {
+        let values;
+        if (Array.isArray(req.query.values)) {
+            values = req.query.values.reduce((acc, item) => acc + ',' + item);
+        } else {
+            values = req.query.values;
+        }
         try {
-            const posts = await PostService.getPostsByTags(req.query.values);
-            return res.status(200).json(posts);
-        } catch (error) {
-            return next(error);
+            const posts = await PostService.getPostsByTags(values);
+            return res.json(posts);
+        } catch (err) {
+            return next(err);
         }
     }
     async getPostsByPeriod(req, res, next) {
