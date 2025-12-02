@@ -31,12 +31,7 @@ class UserAccountService {
     }
 
     async updateUser(login, userData) {
-        console.log('UPDATE USER - login:', login); // <- добавь эту строку
-        console.log('UPDATE USER - userData:', userData); // <- и эту
-
-        // Проверяем существование пользователя
         const existingUser = await userAccountRepository.findUserByLogin(login);
-        console.log('FOUND USER:', existingUser); // <- и эту
         if (!existingUser) {
             throw new Error(`User with login ${login} not found`);
         }
