@@ -1,4 +1,5 @@
 import userAccountRepository from "../repositories/userAccount.repository.js";
+import bcrypt from "bcrypt";
 
 class UserAccountService {
     async register(user) {
@@ -45,6 +46,9 @@ class UserAccountService {
     }
 
     async changePassword(login, newPassword) {
+        const salt = await bcrypt.genSalt(12);
+        const hashPassword = await bcrypt.hash(newPassword, salt);
+        const user =  userAccountRepository.ChangePassword(login, hashPassword);
     }
 }
 

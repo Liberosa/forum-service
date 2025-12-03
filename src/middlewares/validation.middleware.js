@@ -24,12 +24,14 @@ const schemas = {
         firstName: Joi.string().required(),
         lastName: Joi.string().required()
     }),
-
     updateUser: Joi.object({
         firstName: Joi.string(),
         lastName: Joi.string()
-    }).min(1)
-}
+    }).min(1),
+    changeRoles: Joi.object({
+        role: Joi.string().valid('USER', 'MODERATOR', 'ADMIN').case('upper').required(),
+    })
+};
 
 const validate = (schemaName, target = 'body') => (req, res, next) => {
     const schema = schemas[schemaName];

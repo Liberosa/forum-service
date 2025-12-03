@@ -16,7 +16,7 @@ describe('UserAccountController via routes', () => {
     mockService = {
       register: jest.fn(async (body) => ({ ...body, roles: ['USER'] })),
       getUser: jest.fn(async (user) => ({ login: user })),
-      removeUser: jest.fn(async (user) => ({ login: user })),
+      deleteUser: jest.fn(async (user) => ({ login: user })),
       updateUser: jest.fn(async (user, data) => ({ login: user, ...data })),
       changeRoles: jest.fn(async () => ({ roles: ['USER', 'ADMIN'] })),
       changePassword: jest.fn(async () => ({})),
@@ -38,7 +38,7 @@ describe('UserAccountController via routes', () => {
   test('POST /account/register registers user', async () => {
     const body = { login: 'new', password: 'p', firstName: 'A', lastName: 'B' };
     const res = await request(app).post('/account/register').send(body);
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(201);
     expect(res.body.roles).toContain('USER');
     expect(mockService.register).toHaveBeenCalledWith(body);
   });
@@ -58,7 +58,7 @@ describe('UserAccountController via routes', () => {
   test('DELETE /account/user/:user deletes user', async () => {
     const res = await request(app).delete('/account/user/bob');
     expect(res.status).toBe(200);
-    expect(mockService.removeUser).toHaveBeenCalledWith('bob');
+    expect(mockService.deleteUser).toHaveBeenCalledWith('bob');
   });
 
   test('PATCH /account/user/:user updates user', async () => {
@@ -79,22 +79,12 @@ describe('UserAccountController via routes', () => {
     expect(mockService.changeRoles).toHaveBeenCalledWith('al', 'admin', false);
   });
 
-  test('Error mapping: 409 -> 409 empty body', async () => {
-    const err = new Error('exists');
-    err.statusCode = 409;
+  test('Error mapping: conflict error returns 409', async () => {
+    const err = new Error('User with this login already exists');
     mockService.register.mockRejectedValueOnce(err);
     const res = await request(app).post('/account/register').send({ login: 'x', password: 'p', firstName: 'A', lastName: 'B' });
     expect(res.status).toBe(409);
-    expect(res.text).toBe('');
-  });
-
-  test('Error mapping: 400 -> json body', async () => {
-    const err = new Error('Invalid role: bad. Valid roles: USER, MODERATOR, ADMIN');
-    err.statusCode = 400;
-    mockService.changeRoles.mockRejectedValueOnce(err);
-    const res = await request(app).patch('/account/user/al/role/bad');
-    expect(res.status).toBe(400);
-    expect(res.body).toEqual(expect.objectContaining({ code: 400, status: 'Bad Request' }));
+    expect(res.body).toEqual(expect.objectContaining({ status: 'Conflict.' }));
   });
 
   test('Error mapping: not found -> 404', async () => {

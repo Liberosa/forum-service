@@ -21,7 +21,7 @@ class UserAccountController {
 
     async deleteUser(req, res, next) {
         try {
-            const user = await UserAccountService.deleteUser(req.params.user)
+            const user = await UserAccountService.deleteUser(req.params.user);
             return res.json(user);
         } catch (error) {
             return next(error);
@@ -30,7 +30,7 @@ class UserAccountController {
 
     async updateUser(req, res, next) {
         try {
-            const user = await UserAccountService.updateUser(req.params.user, req.body)
+            const user = await UserAccountService.updateUser(req.params.user, req.body);
             return res.json(user);
         } catch (error) {
             return next(error);
@@ -39,7 +39,7 @@ class UserAccountController {
 
     async addRole(req, res, next) {
         try {
-            const user = await UserAccountService.changeRoles(req.params.user, req.params.role, true)
+            const user = await UserAccountService.changeRoles(req.params.user, req.params.role, true);
             return res.json(user);
         } catch (error) {
             return next(error);
@@ -48,7 +48,7 @@ class UserAccountController {
 
     async deleteRole(req, res, next) {
         try {
-            const user = await UserAccountService.changeRoles(req.params.user, req.params.role, false)
+            const user = await UserAccountService.changeRoles(req.params.user, req.params.role, false);
             return res.json(user);
         } catch (error) {
             return next(error);
@@ -56,7 +56,12 @@ class UserAccountController {
     }
 
     async changePassword(req, res, next) {
-        //do it later
+       try {
+           const user = await UserAccountService.changePassword(req.params.user,req.body.password);
+           return res.json(user);
+       }catch (error) {
+           return next(error);
+       }
     }
 
     async login(req, res, next) {

@@ -8,8 +8,8 @@ router.post('/register', validate('register'), UserAccountController.register);
 router.post('/login', UserAccountController.getUser);
 router.delete('/user/:user', UserAccountController.deleteUser);
 router.patch('/user/:user', validate('updateUser'), UserAccountController.updateUser);
-router.patch('/user/:user/role/:role', UserAccountController.addRole);
-router.delete('/user/:user/role/:role', UserAccountController.deleteRole);
+router.patch('/user/:user/role/:role',validate('changeRoles'), UserAccountController.addRole);
+router.delete('/user/:user/role/:role', validate('changeRoles'),UserAccountController.deleteRole);
 router.patch('/password', UserAccountController.changePassword);
 router.get('/user/:user', UserAccountController.getUser);
 

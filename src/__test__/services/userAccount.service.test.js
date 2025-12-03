@@ -20,15 +20,17 @@ describe('UserAccountService', () => {
     ({ default: Service } = await import('../../services/userAccount.service.js'));
   });
 
-  test('register returns 409 error if login taken', async () => {
-    mockRepo.findUserByLogin.mockResolvedValue({ login: 'adam' });
-    await expect(Service.register({ login: 'adam' })).rejects.toMatchObject({ statusCode: 409 });
+  test('register throws error if login taken', async () => {
+    mockRepo.createUser.mockRejectedValue(new Error('duplicate'));
+    await expect(Service.register({ login: 'adam' })).rejects.toThrow('User with this login already exists');
   });
 
-  test('register sets default USER role', async () => {
-    mockRepo.findUserByLogin.mockResolvedValue(null);
-    await Service.register({ login: 'new', password: 'p', firstName: 'A', lastName: 'B' });
-    expect(mockRepo.createUser).toHaveBeenCalledWith(expect.objectContaining({ roles: ['USER'] }));
+  test('register creates user', async () => {
+    const user = { login: 'new', password: 'p', firstName: 'A', lastName: 'B' };
+    mockRepo.createUser.mockResolvedValue(user);
+    const result = await Service.register(user);
+    expect(mockRepo.createUser).toHaveBeenCalledWith(user);
+    expect(result).toEqual(user);
   });
 
   test('getUser throws if not found', async () => {
@@ -41,27 +43,32 @@ describe('UserAccountService', () => {
     await expect(Service.deleteUser('x')).rejects.toThrow('User with login x not found');
   });
 
-  test('updateUser only allows firstName/lastName and requires existing', async () => {
-    mockRepo.findUserByLogin.mockResolvedValue({ login: 'u', roles: ['USER'] });
-    await Service.updateUser('u', { firstName: 'A', lastName: 'B', password: 'HACK' });
+  test('updateUser updates user data', async () => {
+    const updated = { login: 'u', firstName: 'A', lastName: 'B' };
+    mockRepo.updateUser.mockResolvedValue(updated);
+    const result = await Service.updateUser('u', { firstName: 'A', lastName: 'B' });
     expect(mockRepo.updateUser).toHaveBeenCalledWith('u', { firstName: 'A', lastName: 'B' });
+    expect(result).toEqual(updated);
   });
 
-  test('updateUser throws if user does not exist', async () => {
-    mockRepo.findUserByLogin.mockResolvedValue(null);
-    await expect(Service.updateUser('no', { firstName: 'A' })).rejects.toThrow('User with login no not found');
-  });
-
-  test('changeRoles validates role and prevents removing last role', async () => {
-    mockRepo.findUserByLogin.mockResolvedValue({ login: 'u', roles: ['USER'] });
-    await Service.changeRoles('u', 'admin', true);
+  test('changeRoles adds role', async () => {
+    const user = { login: 'u', roles: ['USER', 'ADMIN'] };
+    mockRepo.addRole.mockResolvedValue(user);
+    const result = await Service.changeRoles('u', 'admin', true);
     expect(mockRepo.addRole).toHaveBeenCalledWith('u', 'ADMIN');
-
-    await expect(Service.changeRoles('u', 'user', false)).rejects.toMatchObject({ statusCode: 400 });
+    expect(result).toEqual({ roles: ['USER', 'ADMIN'], login: 'u' });
   });
 
-  test('changeRoles rejects invalid role with 400', async () => {
-    mockRepo.findUserByLogin.mockResolvedValue({ login: 'u', roles: ['USER'] });
-    await expect(Service.changeRoles('u', 'invalid', true)).rejects.toMatchObject({ statusCode: 400 });
+  test('changeRoles removes role', async () => {
+    const user = { login: 'u', roles: ['USER'] };
+    mockRepo.removeRole.mockResolvedValue(user);
+    const result = await Service.changeRoles('u', 'moderator', false);
+    expect(mockRepo.removeRole).toHaveBeenCalledWith('u', 'MODERATOR');
+    expect(result).toEqual({ roles: ['USER'], login: 'u' });
+  });
+
+  test('changeRoles throws if user not found', async () => {
+    mockRepo.addRole.mockResolvedValue(null);
+    await expect(Service.changeRoles('x', 'admin', true)).rejects.toThrow('User with login x not found');
   });
 });

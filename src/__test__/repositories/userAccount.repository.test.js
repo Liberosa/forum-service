@@ -6,9 +6,9 @@ const makeMockUserModel = () => {
     this._data = data;
     this.save = jest.fn().mockResolvedValue({ ...data });
   };
-  MockUser.findOne = jest.fn();
-  MockUser.findOneAndDelete = jest.fn();
-  MockUser.findOneAndUpdate = jest.fn();
+  MockUser.findById = jest.fn();
+  MockUser.findByIdAndDelete = jest.fn();
+  MockUser.findByIdAndUpdate = jest.fn();
   return MockUser;
 };
 
@@ -31,43 +31,35 @@ describe('userAccount.repository', () => {
     expect(res).toEqual(expect.objectContaining({ login: 'user' }));
   });
 
-  test('findUserByLogin delegates to findOne with case-insensitive regex', async () => {
-    MockUser.findOne.mockResolvedValue({ login: 'user' });
-    const res = await repo.findUserByLogin('User');
-    expect(MockUser.findOne).toHaveBeenCalled();
-    const arg = MockUser.findOne.mock.calls[0][0];
-    expect(arg.login).toBeInstanceOf(RegExp);
-    expect(arg.login.flags).toContain('i');
+  test('findUserByLogin delegates to findById', async () => {
+    MockUser.findById.mockResolvedValue({ login: 'user' });
+    const res = await repo.findUserByLogin('user');
+    expect(MockUser.findById).toHaveBeenCalledWith('user');
     expect(res).toEqual({ login: 'user' });
   });
 
-  test('deleteUser delegates to findOneAndDelete with regex', async () => {
-    MockUser.findOneAndDelete.mockResolvedValue({ login: 'x' });
+  test('deleteUser delegates to findByIdAndDelete', async () => {
+    MockUser.findByIdAndDelete.mockResolvedValue({ login: 'x' });
     await repo.deleteUser('x');
-    const arg = MockUser.findOneAndDelete.mock.calls[0][0];
-    expect(arg.login).toBeInstanceOf(RegExp);
+    expect(MockUser.findByIdAndDelete).toHaveBeenCalledWith('x');
   });
 
-  test('updateUser delegates to findOneAndUpdate with new: true', async () => {
-    MockUser.findOneAndUpdate.mockResolvedValue({ login: 'x', firstName: 'A' });
+  test('updateUser delegates to findByIdAndUpdate with new: true', async () => {
+    MockUser.findByIdAndUpdate.mockResolvedValue({ login: 'x', firstName: 'A' });
     const res = await repo.updateUser('x', { firstName: 'A' });
-    expect(MockUser.findOneAndUpdate).toHaveBeenCalled();
-    const args = MockUser.findOneAndUpdate.mock.calls[0];
-    expect(args[2]).toEqual({ new: true });
+    expect(MockUser.findByIdAndUpdate).toHaveBeenCalledWith('x', { firstName: 'A' }, { new: true });
     expect(res.firstName).toBe('A');
   });
 
-  test('addRole calls $addToSet and uppercases role', async () => {
-    MockUser.findOneAndUpdate.mockResolvedValue({ login: 'x', roles: ['USER', 'ADMIN'] });
-    await repo.addRole('x', 'admin');
-    const args = MockUser.findOneAndUpdate.mock.calls[0];
-    expect(args[1]).toEqual({ $addToSet: { roles: 'ADMIN' } });
+  test('addRole calls $addToSet', async () => {
+    MockUser.findByIdAndUpdate.mockResolvedValue({ login: 'x', roles: ['USER', 'ADMIN'] });
+    await repo.addRole('x', 'ADMIN');
+    expect(MockUser.findByIdAndUpdate).toHaveBeenCalledWith('x', { $addToSet: { roles: 'ADMIN' } }, { new: true });
   });
 
-  test('removeRole calls $pull and uppercases role', async () => {
-    MockUser.findOneAndUpdate.mockResolvedValue({ login: 'x', roles: ['USER'] });
-    await repo.removeRole('x', 'user');
-    const args = MockUser.findOneAndUpdate.mock.calls.pop();
-    expect(args[1]).toEqual({ $pull: { roles: 'USER' } });
+  test('removeRole calls $pull', async () => {
+    MockUser.findByIdAndUpdate.mockResolvedValue({ login: 'x', roles: ['USER'] });
+    await repo.removeRole('x', 'USER');
+    expect(MockUser.findByIdAndUpdate).toHaveBeenCalledWith('x', { $pull: { roles: 'USER' } }, { new: true });
   });
 });
