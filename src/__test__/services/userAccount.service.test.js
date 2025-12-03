@@ -36,9 +36,9 @@ describe('UserAccountService', () => {
     await expect(Service.getUser('x')).rejects.toThrow('User with login x not found');
   });
 
-  test('removeUser throws if not found', async () => {
+  test('deleteUser throws if not found', async () => {
     mockRepo.deleteUser.mockResolvedValue(null);
-    await expect(Service.removeUser('x')).rejects.toThrow('User with login x not found');
+    await expect(Service.deleteUser('x')).rejects.toThrow('User with login x not found');
   });
 
   test('updateUser only allows firstName/lastName and requires existing', async () => {

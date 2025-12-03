@@ -4,7 +4,7 @@ class UserAccountController {
     async register(req, res, next) {
         try {
             const user = await UserAccountService.register(req.body);
-            return res.status(200).json(user);
+            return res.status(201).json(user);
         } catch (error) {
             return next(error);
         }
@@ -19,9 +19,9 @@ class UserAccountController {
         }
     }
 
-    async removeUser(req, res, next) {
+    async deleteUser(req, res, next) {
         try {
-            const user = await UserAccountService.removeUser(req.params.user)
+            const user = await UserAccountService.deleteUser(req.params.user)
             return res.json(user);
         } catch (error) {
             return next(error);
@@ -57,6 +57,10 @@ class UserAccountController {
 
     async changePassword(req, res, next) {
         //do it later
+    }
+
+    async login(req, res, next) {
+//do it later
     }
 
 

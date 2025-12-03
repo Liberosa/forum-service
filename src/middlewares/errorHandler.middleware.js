@@ -12,10 +12,20 @@ const errorHandler = (error, req, res, _next) => {
             path: req.path
         });
     }
-    if (error.message && contains) {
+
+    if (error.message && error.message.includes('not found')) {
         return res.status(404).json(
             {
                 status: 'Not found',
+                code: 404,
+                message: error.message,
+                path: req.path
+            });
+    }
+    if (error.message && error.message.includes('login already exists')) {
+        return res.status(409).json(
+            {
+                status: 'Conflict.',
                 code: 404,
                 message: error.message,
                 path: req.path

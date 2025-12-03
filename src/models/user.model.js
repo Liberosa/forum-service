@@ -2,11 +2,10 @@ import {model, Schema, Types} from "mongoose";
 
 const userAccountSchema = new Schema(
     {
-        _id: { type: String, default: () => new Types.ObjectId().toHexString()},
-        login: {
+        _id: {
             type: String,
             required: true,
-            unique: true,
+            alias: 'login',
             trim: true,
             minlength: 3,
             maxlength: 20
@@ -36,6 +35,7 @@ const userAccountSchema = new Schema(
         versionKey: false,
         toJSON: {
             transform: (doc, ret) => {
+                ret.login = ret._id;
                 delete ret.password;
                 delete ret._id;
             }

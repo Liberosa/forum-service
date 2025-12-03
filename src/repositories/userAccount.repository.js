@@ -7,35 +7,39 @@ class UserAccountRepository {
     }
 
     async findUserByLogin(login) {
-        return UserAccount.findOne({ login: new RegExp(`^${login}$`, 'i') });
+        return UserAccount.findById(login);
     }
 
     async deleteUser(login) {
-        return UserAccount.findOneAndDelete({ login: new RegExp(`^${login}$`, 'i') });
+        return UserAccount.findByIdAndDelete(login);
     }
 
     async updateUser(login, updateData) {
-        return UserAccount.findOneAndUpdate(
-            { login: new RegExp(`^${login}$`, 'i') },
+        return UserAccount.findByIdAndUpdate(
+            login,
             updateData,
-            { new: true }
+            {new: true}
         );
     }
 
     async addRole(login, role) {
-        return UserAccount.findOneAndUpdate(
-            { login: new RegExp(`^${login}$`, 'i') },
-            { $addToSet: { roles: role.toUpperCase() } },
-            { new: true }
+        return UserAccount.findByIdAndUpdate(
+            login,
+            {$addToSet: {roles: role}},
+            {new: true}
         );
     }
 
     async removeRole(login, role) {
-        return UserAccount.findOneAndUpdate(
-            { login: new RegExp(`^${login}$`, 'i') },
-            { $pull: { roles: role.toUpperCase() } },
-            { new: true }
+        return UserAccount.findByIdAndUpdate(
+            login,
+            {$pull: {roles: role}},
+            {new: true}
         );
+    }
+
+    async ChangePassword(login, password) {
+        return UserAccount.findByIdAndUpdate(login, password, {new: true})
     }
 }
 

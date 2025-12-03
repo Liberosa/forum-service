@@ -2,16 +2,11 @@ import userAccountRepository from "../repositories/userAccount.repository.js";
 
 class UserAccountService {
     async register(user) {
-        const existingUser = await userAccountRepository.findUserByLogin(user.login);
-        if (existingUser) {
-            const error = new Error(`User with login ${user.login} already exists`);
-            error.statusCode = 409;
-            throw error;
+        try {
+            return await userAccountRepository.createUser(user);
+        } catch (e) {
+            throw new Error('User with this login already exists');
         }
-        return await userAccountRepository.createUser({
-            ...user,
-            roles: ['USER']
-        });
     }
 
     async getUser(login) {
@@ -22,7 +17,7 @@ class UserAccountService {
         return user;
     }
 
-    async removeUser(login) {
+    async deleteUser(login) {
         const user = await userAccountRepository.deleteUser(login);
         if (!user) {
             throw new Error(`User with login ${login} not found`);
@@ -31,40 +26,22 @@ class UserAccountService {
     }
 
     async updateUser(login, userData) {
-        const existingUser = await userAccountRepository.findUserByLogin(login);
-        if (!existingUser) {
-            throw new Error(`User with login ${login} not found`);
-        }
-        const allowedUpdates = {};
-        if (userData.firstName) allowedUpdates.firstName = userData.firstName;
-        if (userData.lastName) allowedUpdates.lastName = userData.lastName;
-
-        return await userAccountRepository.updateUser(login, allowedUpdates);
+        return await userAccountRepository.updateUser(login, userData);
     }
 
     async changeRoles(login, role, isAddRole) {
-        const user = await userAccountRepository.findUserByLogin(login);
-        if (!user) {
+        role = role.toUpperCase();
+        let userAccount;
+        if (isAddRole) {
+            userAccount = await userAccountRepository.addRole(login, role);
+        } else {
+            userAccount = await userAccountRepository.removeRole(login, role);
+        }
+        if (!userAccount) {
             throw new Error(`User with login ${login} not found`);
         }
-        const validRoles = ['USER', 'MODERATOR', 'ADMIN'];
-        const upperRole = role.toUpperCase();
-        if (!validRoles.includes(upperRole)) {
-            const error = new Error(`Invalid role: ${role}. Valid roles: ${validRoles.join(', ')}`);
-            error.statusCode = 400;
-            throw error;
-        }
-
-        if (isAddRole) {
-            return await userAccountRepository.addRole(login, upperRole);
-        } else {
-            if (user.roles.length === 1 && user.roles.includes(upperRole)) {
-                const error = new Error(`Cannot remove last role from user ${login}`);
-                error.statusCode = 400;
-                throw error;
-            }
-            return await userAccountRepository.removeRole(login, upperRole);
-        }
+        const {roles, userName = login} = userAccount;
+        return {roles, login: userName};
     }
 
     async changePassword(login, newPassword) {
