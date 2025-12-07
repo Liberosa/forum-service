@@ -46,9 +46,10 @@ class UserAccountService {
     }
 
     async changePassword(login, newPassword) {
-        const salt = await bcrypt.genSalt(12);
-        const hashPassword = await bcrypt.hash(newPassword, salt);
-        const user =  userAccountRepository.ChangePassword(login, hashPassword);
+        const userAccount = await userAccountRepository.changePassword(login, newPassword);
+        if (!userAccount) {
+            throw new Error(`User with login ${login} not found`);
+        }
     }
 }
 
