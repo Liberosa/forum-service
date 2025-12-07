@@ -8,24 +8,21 @@ const userAccountSchema = new Schema(
             type: String,
             required: true,
             alias: 'login',
-            trim: true,
-            minlength: 3,
-            maxlength: 20
+
         },
         password: {
             type: String,
             required: true,
-            minlength: 4
         },
         firstName: {
             type: String,
             required: true,
-            trim: true
+
         },
         lastName: {
             type: String,
             required: true,
-            trim: true
+
         },
         roles: {
             type: [String],
@@ -50,5 +47,8 @@ userAccountSchema.pre('save', async function () {
         this.password = await bcrypt.hash(this.password, salt);
     }
 });
+userAccountSchema.methods.comparePassword = async function (plainTextPassword) {
+    return await bcrypt.compare(plainTextPassword, this.password);
+};
 
 export default model('UserAccount', userAccountSchema, 'userAccounts');

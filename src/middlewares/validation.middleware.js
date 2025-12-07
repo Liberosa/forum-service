@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import {ADMIN, MODERATOR} from "../config/constants.js";
+import {USER,ADMIN, MODERATOR} from "../config/constants.js";
 
 const schemas = {
     createPost: Joi.object({

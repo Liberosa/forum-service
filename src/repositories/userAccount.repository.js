@@ -1,8 +1,9 @@
-import UserAccount from "../models/user.model.js";
+import UserAccount from "../models/userAccount.model.js";
 
 class UserAccountRepository {
     async createUser(userData) {
         const user = new UserAccount(userData);
+        console.log(user)
         return user.save();
     }
 
@@ -38,7 +39,7 @@ class UserAccountRepository {
         );
     }
 
-    async ChangePassword(login, password) {
+    async changePassword(login, password) {
         const user = await UserAccount.findById(login);
         if(user){
             user.password = password;

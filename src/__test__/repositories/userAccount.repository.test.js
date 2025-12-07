@@ -19,7 +19,7 @@ describe('userAccount.repository', () => {
   beforeEach(async () => {
     jest.resetModules();
     MockUser = makeMockUserModel();
-    jest.unstable_mockModule('../../models/user.model.js', () => ({
+    jest.unstable_mockModule('../../models/userAccount.model.js', () => ({
       default: MockUser,
     }));
     ({ default: repo } = await import('../../repositories/userAccount.repository.js'));
