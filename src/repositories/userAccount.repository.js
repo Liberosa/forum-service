@@ -3,7 +3,6 @@ import UserAccount from "../models/userAccount.model.js";
 class UserAccountRepository {
     async createUser(userData) {
         const user = new UserAccount(userData);
-        console.log(user)
         return user.save();
     }
 
