@@ -56,14 +56,21 @@ class UserAccountController {
     }
 
     async changePassword(req, res, next) {
-     await  UserAccountService.changePassword(req.principal.username,req.body.password);
-        return res.status(204).send();
+        try{
+            await UserAccountService.changePassword(req.principal.username, req.body.password);
+            return res.status(204).send();
+        }catch(error){
+            return next(error);
+        }
     }
 
     async login(req, res, next) {
-        console.log(req.principal);
-    const userAccount = await UserAccountService.getUser(req.principal.username);
-    return res.json(userAccount);
+        try{
+            const userAccount = await UserAccountService.getUser(req.principal.username);
+            return res.json(userAccount);
+        }catch(error){
+            return next(error);
+        }
     }
 
 

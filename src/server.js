@@ -1,5 +1,6 @@
 import express,{Router} from "express";
 import mongoose from "mongoose";
+import cors from "cors";
 import config from "./config/config.js";
 import postRoutes from "./routes/post.routes.js";
 import errorHandler from "./middlewares/errorHandler.middleware.js";
@@ -11,6 +12,13 @@ import {ADMIN,MODERATOR} from "./config/constants.js";
 
 const app = express();
 const authRouter = Router();
+
+app.use(cors({
+    origin: ['http://localhost:5173', 'http://localhost:3000'], // для dev
+    credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Password']
+}));
 
 app.use(express.json());
 app.use(authenticationMiddleware);

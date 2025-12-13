@@ -30,7 +30,7 @@ class UserAccountService {
     }
 
     async changeRoles(login, role, isAddRole) {
-        capRole = role.toUpperCase();
+        const capRole = role.toUpperCase();
         let userAccount;
         if (isAddRole) {
             userAccount = await userAccountRepository.addRole(login, capRole);
