@@ -1,5 +1,4 @@
 import userAccountRepository from "../repositories/userAccount.repository.js";
-import bcrypt from "bcrypt";
 
 class UserAccountService {
     async register(user) {
@@ -31,12 +30,12 @@ class UserAccountService {
     }
 
     async changeRoles(login, role, isAddRole) {
-        role = role.toUpperCase();
+        capRole = role.toUpperCase();
         let userAccount;
         if (isAddRole) {
-            userAccount = await userAccountRepository.addRole(login, role);
+            userAccount = await userAccountRepository.addRole(login, capRole);
         } else {
-            userAccount = await userAccountRepository.removeRole(login, role);
+            userAccount = await userAccountRepository.removeRole(login, capRole);
         }
         if (!userAccount) {
             throw new Error(`User with login ${login} not found`);

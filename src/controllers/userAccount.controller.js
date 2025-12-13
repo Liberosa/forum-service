@@ -56,7 +56,7 @@ class UserAccountController {
     }
 
     async changePassword(req, res, next) {
-     await  UserAccountService.changePassword(req.principal.username,req.body.password)
+     await  UserAccountService.changePassword(req.principal.username,req.body.password);
         return res.status(204).send();
     }
 
